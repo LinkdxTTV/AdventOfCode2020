@@ -18,6 +18,23 @@ func main() {
 	fmt.Println(processedData)
 	for _, num1 := range processedData {
 		for _, num2 := range processedData {
+
+			if num1 == num2 {
+				continue
+			}
+
+			num1Int, _ := strconv.Atoi(num1)
+			num2Int, _ := strconv.Atoi(num2)
+			if num1Int+num2Int == 2020 {
+				fmt.Println(num1Int, num2Int)
+				fmt.Println(num1Int * num2Int)
+			}
+
+		}
+	}
+
+	for _, num1 := range processedData {
+		for _, num2 := range processedData {
 			for _, num3 := range processedData {
 
 				if num1 == num2 || num1 == num3 || num2 == num3 {
