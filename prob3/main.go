@@ -47,7 +47,7 @@ func lookForTrees(data []string, xInc, yInc int) int {
 			break
 		}
 		if x > len(data[0])-1 {
-			x = x - 31
+			x = x - len(data[0])
 		}
 		if string(data[y][x]) == "#" {
 			trees++
