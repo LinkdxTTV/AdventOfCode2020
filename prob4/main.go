@@ -19,7 +19,7 @@ func main() {
 	// Pass processing
 	passports := []map[string]string{}
 	mapPass := map[string]string{}
-	for _, line := range processedData {
+	for linenumber, line := range processedData {
 		entries := strings.Split(string(line), " ")
 		for _, entry := range entries {
 			kv := strings.Split(string(entry), ":")
@@ -27,22 +27,23 @@ func main() {
 				mapPass[kv[0]] = kv[1]
 			}
 		}
-		if line == "" {
+		if line == "" || linenumber == len(processedData)-1 {
 			passports = append(passports, mapPass)
 			mapPass = map[string]string{}
 		}
 	}
+	fmt.Println("No. of Passports found: ", len(passports))
 	valid := 0
-	fmt.Println(len(passports))
-	eyecolors := map[string]string{
-		"amb": "",
-		"blu": "",
-		"brn": "",
-		"hzl": "",
-		"grn": "",
-		"gry": "",
-		"oth": "",
+	eyecolors := map[string]bool{
+		"amb": true,
+		"blu": true,
+		"brn": true,
+		"hzl": true,
+		"grn": true,
+		"gry": true,
+		"oth": true,
 	}
+	// Filtering
 	for _, passport := range passports {
 		if byr, ok := passport["byr"]; !ok {
 			continue
@@ -134,7 +135,7 @@ func main() {
 				continue
 			}
 		}
-		valid = valid + 1
+		valid++
 	}
 	fmt.Println(valid)
 }
