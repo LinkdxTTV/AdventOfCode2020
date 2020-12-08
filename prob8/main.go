@@ -100,6 +100,7 @@ func (s instructionSet) runSet(start int) (accumulator int, err error) {
 	}
 }
 
+// Do the instruction
 func (i instruction) do(index *int, accumulator *int) {
 	switch i.command {
 	case "nop":
@@ -117,6 +118,7 @@ func (i instruction) do(index *int, accumulator *int) {
 	}
 }
 
+// Flip this instruction
 func (i *instruction) flip() {
 	if i.command == "jmp" {
 		i.command = "nop"
@@ -125,6 +127,7 @@ func (i *instruction) flip() {
 	}
 }
 
+// Deep Copying sucks
 func instructionSetDeepCopy(instructionSet instructionSet) instructionSet {
 	instructionSetCopy := instructionSet
 	instructionSetCopy.set = make([]instruction, len(instructionSet.set))
