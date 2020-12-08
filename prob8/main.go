@@ -16,8 +16,6 @@ type instruction struct {
 type instructionSet struct {
 	set     []instruction
 	visited map[int]int
-	// Part 2, exchange indices
-
 }
 
 var (
@@ -82,7 +80,7 @@ func main() {
 
 func (s instructionSet) runSet(start int) (accumulator int, err error) {
 	i := start
-	// Flip these instructions for part 2
+
 	for {
 		if i >= len(s.set) {
 			return accumulator, errorTerm
