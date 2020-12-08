@@ -1,10 +1,28 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
+)
+
+type instruction struct {
+	command string
+	value   int
+}
+
+type instructionSet struct {
+	set     []instruction
+	visited map[int]int
+	// Part 2, exchange indices
+
+}
+
+var (
+	errorRevisit = errors.New("revisited an instruction")
+	errorTerm    = errors.New("sequence terminated")
 )
 
 func main() {
@@ -15,77 +33,105 @@ func main() {
 		return
 	}
 	processedData := strings.Split(string(data), "\n")
-	accumulator := 0
-	index := 0
-	lenArray := len(processedData)
-	visited := []bool{}
-	nopAndjmp := []int{}
-	for i := 0; i < lenArray; i++ {
-		// Preprocess the the NOP and JMP commands
-		visited = append(visited, false)
-		line := processedData[i]
+
+	// Preprocessing
+	instructionSet := instructionSet{[]instruction{}, make(map[int]int)}
+	flipIndices := []int{}
+	for idx, line := range processedData {
 		split := strings.Split(line, " ")
-		instruction := split[0]
-		if instruction == "nop" || instruction == "jmp" {
-			nopAndjmp = append(nopAndjmp, i)
+		command, num := split[0], split[1]
+		numInt, err := strconv.Atoi(num)
+		if err != nil {
+			fmt.Println("strconv err", err)
+		}
+
+		instruction := instruction{
+			command: command,
+			value:   numInt,
+		}
+
+		instructionSet.set = append(instructionSet.set, instruction)
+		instructionSet.visited[idx] = 0
+
+		// Part 2 preprocessing
+
+		if command == "jmp" || command == "nop" {
+			flipIndices = append(flipIndices, idx)
 		}
 	}
-
-	for _, nopOrjmpIndex := range nopAndjmp {
-		// Reset everything
-		index = 0
-		accumulator = 0
-		for i := 0; i < len(visited); i++ {
-			visited[i] = false
-		}
-		for {
-			if index >= len(processedData) {
-				fmt.Println("Terminated Succesfully, Accumulator value is: ", accumulator)
-				break
-			}
-			if visited[index] {
-				break
-			}
-			visited[index] = true
-			line := processedData[index]
-			split := strings.Split(line, " ")
-			instruction, num := split[0], split[1]
-			numSign := string(num[0])
-			numInt, _ := strconv.Atoi(num[1:])
-
-			if index == nopOrjmpIndex {
-				if instruction == "jmp" {
-					instruction = "nop"
-				} else if instruction == "nop" {
-					instruction = "jmp"
-				}
-			}
-
-			switch instruction {
-			case "nop":
-				index++
-
-			case "acc":
-				switch numSign {
-				case "+":
-					accumulator += numInt
-				case "-":
-					accumulator -= numInt
-				}
-				index++
-
-			case "jmp":
-				switch numSign {
-				case "+":
-					index += numInt
-				case "-":
-					index -= numInt
-				}
-			default:
-				fmt.Println("unknown instruction", instruction)
-			}
-
-		}
+	// Part 1
+	// Make a deep copy so we can reuse the original later
+	instructionSetCopy := instructionSetDeepCopy(instructionSet)
+	accumulator, err := instructionSetCopy.runSet(0)
+	if err == errorRevisit {
+		fmt.Println(err, "Accumulator value: ", accumulator)
 	}
 
+	// Part 2
+	for _, idx := range flipIndices {
+		// Make a deep copy each time
+		instructionSetCopy := instructionSetDeepCopy(instructionSet)
+		instructionSetCopy.set[idx].flip()
+
+		accumulator, err := instructionSetCopy.runSet(0)
+		if err == errorTerm {
+			fmt.Println(err, "Accumulator value: ", accumulator)
+		}
+	}
+}
+
+func (s instructionSet) runSet(start int) (accumulator int, err error) {
+	i := start
+	// Flip these instructions for part 2
+	for {
+		if i >= len(s.set) {
+			return accumulator, errorTerm
+		}
+		instruction := s.set[i]
+
+		// Disallow Loops
+		if s.visited[i] != 0 {
+			return accumulator, errorRevisit
+		}
+		s.visited[i]++
+
+		// Do
+		instruction.do(&i, &accumulator)
+	}
+}
+
+func (i instruction) do(index *int, accumulator *int) {
+	switch i.command {
+	case "nop":
+		*index++
+
+	case "acc":
+		*accumulator += i.value
+		*index++
+
+	case "jmp":
+		*index += i.value
+
+	default:
+		fmt.Println("unknown instruction", i.command)
+	}
+}
+
+func (i *instruction) flip() {
+	if i.command == "jmp" {
+		i.command = "nop"
+	} else if i.command == "nop" {
+		i.command = "jmp"
+	}
+}
+
+func instructionSetDeepCopy(instructionSet instructionSet) instructionSet {
+	instructionSetCopy := instructionSet
+	instructionSetCopy.set = make([]instruction, len(instructionSet.set))
+	copy(instructionSetCopy.set, instructionSet.set)
+	instructionSetCopy.visited = map[int]int{}
+	for k, v := range instructionSet.visited {
+		instructionSetCopy.visited[k] = v
+	}
+	return instructionSetCopy
 }
