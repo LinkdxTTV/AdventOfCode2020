@@ -42,7 +42,6 @@ func main() {
 		diff := i - currentJolt
 		currentJolt += diff
 		if diff > 3 {
-			fmt.Println("wut", i, diff, currentJolt)
 			return
 		}
 		joltDifferences[diff]++
@@ -84,7 +83,7 @@ func recursiveFindWithMemo(start, target int, intMap map[int]bool, memo map[int]
 	for i := start + 1; i <= start+3; i++ {
 		_, ok := intMap[i]
 		if ok {
-			children += recursiveFindWithMemo(i, target, intMap, valid, memo)
+			children += recursiveFindWithMemo(i, target, intMap, memo)
 		}
 	}
 	memo[start] = children
