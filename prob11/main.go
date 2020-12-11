@@ -80,25 +80,6 @@ func areSlicesAreEqual(one, two [][]string) bool {
 	return true
 }
 
-func adjacentSeats(x, y int, data [][]string) int {
-
-	count := 0
-	for xTest := x - 1; xTest <= x+1; xTest++ {
-		for yTest := y - 1; yTest <= y+1; yTest++ {
-			if xTest == x && y == yTest {
-				continue
-			}
-			if xTest < 0 || yTest < 0 || xTest >= len(data[0]) || yTest >= len(data) {
-				continue
-			}
-			if data[yTest][xTest] == "#" {
-				count++
-			}
-		}
-	}
-	return count
-}
-
 func createDataCopy(input [][]string) [][]string {
 	output := [][]string{}
 	for i := range input {
@@ -116,7 +97,7 @@ func goThroughGridOnce(input [][]string) [][]string {
 			if char == "." {
 				continue
 			}
-			adjSeats := adjacentSeats(x, y, input)
+			adjSeats := adjacentSeatsPart1(x, y, input)
 
 			if adjSeats == 0 && char == "L" {
 				output[y][x] = "#"
@@ -149,6 +130,25 @@ func goThroughGridOncePart2(input [][]string) [][]string {
 		}
 	}
 	return output
+}
+
+func adjacentSeatsPart1(x, y int, data [][]string) int {
+
+	count := 0
+	for xTest := x - 1; xTest <= x+1; xTest++ {
+		for yTest := y - 1; yTest <= y+1; yTest++ {
+			if xTest == x && y == yTest {
+				continue
+			}
+			if xTest < 0 || yTest < 0 || xTest >= len(data[0]) || yTest >= len(data) {
+				continue
+			}
+			if data[yTest][xTest] == "#" {
+				count++
+			}
+		}
+	}
+	return count
 }
 
 // Define sight directions
