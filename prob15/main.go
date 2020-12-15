@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -27,31 +28,37 @@ func main() {
 	}
 	fmt.Println("input", numbers)
 	turn := 0
+
+	// timer
+	start := time.Now()
+
 	spokenMap := map[int][]int{}
 	var spoken int
 	end := 30000000
+
 	for i := 0; i < end; i++ {
 		turn++
 		if turn-1 < len(numbers) {
 			spoken = numbers[turn-1]
 			spokenMap[spoken] = append(spokenMap[spoken], turn)
-
 			continue
 		}
 		// spoken should still be assigned from last loop
-		lastTurn, ok := spokenMap[spoken]
-		if ok {
-			if len(lastTurn) == 0 || len(lastTurn) == 1 {
-				spoken = 0
-			} else {
-				spoken = lastTurn[len(lastTurn)-1] - lastTurn[len(lastTurn)-2]
-			}
-		} else {
+		lastTurn, _ := spokenMap[spoken]
+		length := len(lastTurn)
+		if length == 1 { // Means it was only spoken last turn, utter a 0
 			spoken = 0
+		} else {
+			spoken = lastTurn[length-1] - lastTurn[length-2]
 		}
+
 		spokenMap[spoken] = append(spokenMap[spoken], turn)
 	}
+
 	fmt.Println(spoken)
+	// End timer
+	fmt.Println(time.Now().Sub(start))
 }
 
+// Example answer
 // 0 3 6 0 3 3 1 0 4 0
